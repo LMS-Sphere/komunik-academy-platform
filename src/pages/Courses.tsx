@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { BookOpen, Search, Plus, Filter } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { ModuleCard } from '@/components/modules/ModuleCard';
+import { ModuleDetails } from '@/components/modules/ModuleDetails';
 import { Module, Level, Progress } from '@/types';
 
 // Mock data - replace with your Laravel API calls
@@ -73,6 +74,7 @@ export default function Courses() {
   const { currentUser, canCreateModule, hasRole } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 
   const filteredModules = mockModules.filter(module => {
     const matchesSearch = module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,8 +98,10 @@ export default function Courses() {
   };
 
   const handleStartModule = (moduleId: string) => {
-    console.log('Start/Continue module:', moduleId);
-    // TODO: Navigate to module learning page
+    const module = mockModules.find(m => m.idModule === moduleId);
+    if (module) {
+      setSelectedModule(module);
+    }
   };
 
   const handleCreateModule = () => {
@@ -130,6 +134,18 @@ export default function Courses() {
         return 'Explorez les modules disponibles';
     }
   };
+
+  // If a module is selected, show module details
+  if (selectedModule) {
+    return (
+      <div className="p-8">
+        <ModuleDetails 
+          module={selectedModule} 
+          onBack={() => setSelectedModule(null)} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-8">
