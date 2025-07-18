@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, BookOpen, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, CheckCircle2, Star, User, Trophy, PlayCircle } from 'lucide-react';
 import { LessonCard } from './LessonCard';
 import { LessonViewer } from './LessonViewer';
 import { useProgress } from '@/hooks/useProgress';
