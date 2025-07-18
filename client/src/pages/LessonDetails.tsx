@@ -202,15 +202,15 @@ export default function LessonDetails() {
                   
                   <TabsContent value="quiz" className="space-y-4">
                     <div className="text-center py-8">
-                      <h3 className="font-semibold mb-2">Knowledge Check</h3>
+                      <h3 className="font-semibold mb-2">Lesson Quiz</h3>
                       <p className="text-gray-600 dark:text-gray-400 mb-4">
-                        Test your understanding of the lesson content
+                        Test your understanding of this lesson's content
                       </p>
                       <Button 
-                        onClick={() => navigate(`/quiz/quiz/2`)}
+                        onClick={() => navigate(`/quiz/lesson_quiz/${lesson.id}`)}
                         className="bg-blue-600 hover:bg-blue-700"
                       >
-                        Start Quiz
+                        Start Lesson Quiz
                       </Button>
                     </div>
                   </TabsContent>

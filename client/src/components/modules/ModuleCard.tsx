@@ -155,12 +155,21 @@ export function ModuleCard({ module, onPlay, onEnroll, showProgress = false }: M
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             {module.progress !== undefined && module.progress > 0 ? (
-              <Button 
-                className="flex-1" 
-                onClick={() => onPlay?.(module.id)}
-              >
-                Continue Learning
-              </Button>
+              <>
+                <Button 
+                  className="flex-1" 
+                  onClick={() => onPlay?.(module.id)}
+                >
+                  Continue Learning
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1 text-blue-600 border-blue-300 hover:bg-blue-50"
+                  onClick={() => window.location.href = `/quiz/module_final_quiz/${module.id}`}
+                >
+                  Final Quiz
+                </Button>
+              </>
             ) : (
               <Button 
                 className="flex-1" 

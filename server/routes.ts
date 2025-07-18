@@ -111,6 +111,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get lesson quiz
+  app.get("/api/lessons/:lessonId/quiz", async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.lessonId);
+      const evaluations = await storage.getEvaluationsByLesson(lessonId);
+      const lessonQuiz = evaluations.find(e => e.evaluationType === "lesson_quiz");
+      
+      if (!lessonQuiz) {
+        return res.status(404).json({ error: "Lesson quiz not found" });
+      }
+      
+      res.json(lessonQuiz);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch lesson quiz" });
+    }
+  });
+
+  // Get module final quiz
+  app.get("/api/modules/:moduleId/final-quiz", async (req, res) => {
+    try {
+      const moduleId = parseInt(req.params.moduleId);
+      const evaluations = await storage.getEvaluationsByModule(moduleId);
+      const finalQuiz = evaluations.find(e => e.evaluationType === "module_final_quiz");
+      
+      if (!finalQuiz) {
+        return res.status(404).json({ error: "Module final quiz not found" });
+      }
+      
+      res.json(finalQuiz);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch module final quiz" });
+    }
+  });
+
   app.get("/api/evaluations/:id/questions", async (req, res) => {
     try {
       const evaluationId = parseInt(req.params.id);

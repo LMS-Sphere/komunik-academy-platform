@@ -82,7 +82,7 @@ export const evaluations = pgTable("evaluations", {
   lessonId: integer("lesson_id").references(() => lessons.id),
   title: text("title").notNull(),
   description: text("description"),
-  evaluationType: text("evaluation_type").notNull(), // 'quiz', 'assignment', 'test'
+  evaluationType: text("evaluation_type").notNull(), // 'lesson_quiz', 'module_final_quiz'
   totalQuestions: integer("total_questions").default(0),
   passingScore: integer("passing_score").default(70),
   timeLimit: integer("time_limit"), // in minutes

@@ -52,8 +52,8 @@ export default function Quiz() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   
-  const evaluationId = parseInt(params.id as string);
-  const type = params.type as "quiz" | "test";
+  const type = params.type as "lesson_quiz" | "module_final_quiz";
+  const entityId = parseInt(params.id as string); // lessonId or moduleId
   
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestion: 0,
@@ -63,22 +63,30 @@ export default function Quiz() {
     startTime: new Date(),
   });
 
-  // Fetch evaluation details
+  // Fetch evaluation details based on type
   const { data: evaluation, isLoading: evaluationLoading } = useQuery({
-    queryKey: ["/api/evaluations", evaluationId],
-    queryFn: () => apiRequest(`/api/evaluations/${evaluationId}`),
+    queryKey: ["/api/evaluations", type, entityId],
+    queryFn: () => {
+      if (type === "lesson_quiz") {
+        return apiRequest(`/api/lessons/${entityId}/quiz`);
+      } else if (type === "module_final_quiz") {
+        return apiRequest(`/api/modules/${entityId}/final-quiz`);
+      }
+      throw new Error("Invalid quiz type");
+    },
   });
 
   // Fetch questions
   const { data: questions, isLoading: questionsLoading } = useQuery({
-    queryKey: ["/api/evaluations", evaluationId, "questions"],
-    queryFn: () => apiRequest(`/api/evaluations/${evaluationId}/questions`),
+    queryKey: ["/api/evaluations", evaluation?.id, "questions"],
+    queryFn: () => apiRequest(`/api/evaluations/${evaluation?.id}/questions`),
+    enabled: !!evaluation?.id,
   });
 
   // Submit quiz mutation
   const submitQuizMutation = useMutation({
     mutationFn: (responses: any) => 
-      apiRequest(`/api/evaluations/${evaluationId}/submit`, {
+      apiRequest(`/api/evaluations/${evaluation?.id}/submit`, {
         method: "POST",
         body: JSON.stringify(responses),
       }),
@@ -171,7 +179,7 @@ export default function Quiz() {
     const timeTaken = Math.floor((new Date().getTime() - quizState.startTime.getTime()) / 1000 / 60); // in minutes
 
     submitQuizMutation.mutate({
-      evaluationId,
+      evaluationId: evaluation?.id,
       responses,
       timeTaken,
     });
