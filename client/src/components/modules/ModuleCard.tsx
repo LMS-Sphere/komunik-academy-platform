@@ -1,124 +1,175 @@
-import { Module, Progress } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { BookOpen, User, Clock, Play, Edit, Trash2 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { PlayCircle, Clock, BookOpen, Star, User, Calendar } from "lucide-react";
 
 interface ModuleCardProps {
-  module: Module;
-  progress?: Progress;
-  onEdit?: (module: Module) => void;
-  onDelete?: (moduleId: string) => void;
-  onStart?: (moduleId: string) => void;
+  module: {
+    id: number;
+    title: string;
+    description: string;
+    level: string;
+    duration: string;
+    lessons: number;
+    rating: number;
+    imageUrl: string;
+    progress?: number;
+    isCompleted?: boolean;
+    instructor?: string;
+    enrollmentDate?: string;
+  };
+  onPlay?: (moduleId: number) => void;
+  onEnroll?: (moduleId: number) => void;
+  showProgress?: boolean;
 }
 
-export function ModuleCard({ module, progress, onEdit, onDelete, onStart }: ModuleCardProps) {
-  const { canManageModules, hasRole } = useAuth();
-
-  const getProgressPercentage = () => {
-    return progress ? Math.round(progress.progress) : 0;
+export function ModuleCard({ module, onPlay, onEnroll, showProgress = false }: ModuleCardProps) {
+  const getLevelColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'beginner':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
+      case 'advanced':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+    }
   };
 
-  const getDifficultyColor = (difficulty: number) => {
-    if (difficulty <= 3) return 'bg-success/10 text-success';
-    if (difficulty <= 6) return 'bg-warning/10 text-warning';
-    return 'bg-destructive/10 text-destructive';
-  };
-
-  const getDifficultyLabel = (difficulty: number) => {
-    if (difficulty <= 3) return 'Débutant';
-    if (difficulty <= 6) return 'Intermédiaire';
-    return 'Avancé';
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`h-4 w-4 ${
+          i < rating 
+            ? 'fill-yellow-400 text-yellow-400' 
+            : 'text-gray-300 dark:text-gray-600'
+        }`}
+      />
+    ));
   };
 
   return (
-    <Card className="shadow-soft border-0 hover:shadow-medium transition-all duration-200 group">
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2 flex-1">
-            <CardTitle className="text-lg text-foreground group-hover:text-primary transition-colors">
-              {module.title}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {module.description}
-            </p>
-          </div>
-          {canManageModules() && (
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => onEdit?.(module)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
-                onClick={() => onDelete?.(module.idModule)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+    <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1 border-slate-200 dark:border-slate-700">
+      <div className="relative">
+        <div className="aspect-video overflow-hidden">
+          <img 
+            src={module.imageUrl} 
+            alt={module.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
         </div>
-      </CardHeader>
+        
+        {/* Level Badge */}
+        <div className="absolute top-3 left-3">
+          <Badge className={getLevelColor(module.level)}>
+            {module.level}
+          </Badge>
+        </div>
 
-      <CardContent className="space-y-4">
-        {/* Progress Bar for Learners */}
-        {hasRole('learner') && (
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Progression</span>
-              <span className="font-medium text-foreground">{getProgressPercentage()}%</span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${getProgressPercentage()}%` }}
-              />
-            </div>
+        {/* Completion Badge */}
+        {module.isCompleted && (
+          <div className="absolute top-3 right-3">
+            <Badge className="bg-green-500 text-white">
+              Completed
+            </Badge>
           </div>
         )}
 
-        {/* Module Stats */}
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4" />
-            <span>{module.lessons.length} leçons</span>
-          </div>
-          {progress?.timePassed && (
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              <span>{Math.round(progress.timePassed / 60)} min</span>
+        {/* Play Button Overlay */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <Button
+            size="lg"
+            className="bg-white/90 text-black hover:bg-white shadow-lg"
+            onClick={() => onPlay?.(module.id)}
+          >
+            <PlayCircle className="h-5 w-5 mr-2" />
+            Start Learning
+          </Button>
+        </div>
+      </div>
+
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg leading-tight mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              {module.title}
+            </h3>
+            <div className="flex items-center gap-1 mb-2">
+              {renderStars(module.rating)}
+              <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
+                ({module.rating}.0)
+              </span>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Level Badge and Action Button */}
-        <div className="flex items-center justify-between">
-          <Badge className={getDifficultyColor(module.level.difficulty)}>
-            {getDifficultyLabel(module.level.difficulty)}
-          </Badge>
-          
-          <Button 
-            variant={hasRole('learner') ? 'default' : 'outline'} 
-            size="sm"
-            className={hasRole('learner') ? 'bg-gradient-primary hover:bg-primary-hover' : ''}
-            onClick={() => onStart?.(module.idModule)}
-          >
-            {hasRole('learner') ? (
-              <>
-                <Play className="mr-2 h-4 w-4" />
-                {progress ? 'Continuer' : 'Commencer'}
-              </>
+        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+          {module.description}
+        </p>
+      </CardHeader>
+
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          {/* Module Stats */}
+          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              {module.duration}
+            </div>
+            <div className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              {module.lessons} lessons
+            </div>
+          </div>
+
+          {/* Instructor */}
+          {module.instructor && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <User className="h-4 w-4" />
+              {module.instructor}
+            </div>
+          )}
+
+          {/* Enrollment Date */}
+          {module.enrollmentDate && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Calendar className="h-4 w-4" />
+              Enrolled {module.enrollmentDate}
+            </div>
+          )}
+
+          {/* Progress */}
+          {showProgress && module.progress !== undefined && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                <span className="font-medium">{module.progress}%</span>
+              </div>
+              <Progress value={module.progress} className="h-2" />
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-2">
+            {module.progress !== undefined && module.progress > 0 ? (
+              <Button 
+                className="flex-1" 
+                onClick={() => onPlay?.(module.id)}
+              >
+                Continue Learning
+              </Button>
             ) : (
-              'Voir détails'
+              <Button 
+                className="flex-1" 
+                onClick={() => onEnroll?.(module.id)}
+              >
+                Enroll Now
+              </Button>
             )}
-          </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

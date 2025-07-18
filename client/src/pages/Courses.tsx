@@ -1,246 +1,215 @@
-import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Search, Plus, Filter } from "lucide-react";
-import { useAuth } from '@/hooks/useAuth';
-import { ModuleCard } from '@/components/modules/ModuleCard';
-import { ModuleDetails } from '@/components/modules/ModuleDetails';
-import { Module, Level, Progress } from '@/types';
-
-// Mock data - replace with your Laravel API calls
-const mockLevels: Level[] = [
-  { idLevel: '1', name: 'Débutant', description: 'Niveau débutant', difficulty: 2 },
-  { idLevel: '2', name: 'Intermédiaire', description: 'Niveau intermédiaire', difficulty: 5 },
-  { idLevel: '3', name: 'Avancé', description: 'Niveau avancé', difficulty: 8 }
-];
-
-const mockModules: Module[] = [
-  {
-    idModule: '1',
-    title: 'Introduction à React',
-    description: 'Apprenez les bases de React et des composants modernes',
-    trainerId: '2',
-    lessons: [
-      { idLesson: '1', title: 'Introduction', content: '', typeLesson: 'video', moduleId: '1', order: 1 },
-      { idLesson: '2', title: 'Composants', content: '', typeLesson: 'pdf', moduleId: '1', order: 2 }
-    ],
-    level: mockLevels[0],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    idModule: '2',
-    title: 'JavaScript Avancé',
-    description: 'Concepts avancés de JavaScript pour le développement moderne',
-    trainerId: '2',
-    lessons: [
-      { idLesson: '3', title: 'Closures', content: '', typeLesson: 'video', moduleId: '2', order: 1 },
-      { idLesson: '4', title: 'Promises', content: '', typeLesson: 'pdf', moduleId: '2', order: 2 },
-      { idLesson: '5', title: 'Async/Await', content: '', typeLesson: 'video', moduleId: '2', order: 3 }
-    ],
-    level: mockLevels[1],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    idModule: '3',
-    title: 'Node.js & Express',
-    description: 'Développement backend avec Node.js et Express',
-    trainerId: '3',
-    lessons: [
-      { idLesson: '6', title: 'Setup Node.js', content: '', typeLesson: 'pdf', moduleId: '3', order: 1 },
-      { idLesson: '7', title: 'Routes Express', content: '', typeLesson: 'video', moduleId: '3', order: 2 }
-    ],
-    level: mockLevels[2],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-];
-
-const mockProgress: Progress[] = [
-  {
-    idProgress: '1',
-    progress: 75,
-    speed: 1.2,
-    timePassed: 3600,
-    userId: '1',
-    moduleId: '1',
-    startedAt: new Date(),
-    lastAccessed: new Date()
-  }
-];
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BookOpen, Clock, Users, Star, Filter, Search, GraduationCap, Plus } from "lucide-react";
+import { ModuleCard } from "@/components/modules/ModuleCard";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function Courses() {
-  const { currentUser, canCreateModule, hasRole } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState<string>('all');
-  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredModules = mockModules.filter(module => {
-    const matchesSearch = module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         module.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLevel = selectedLevel === 'all' || module.level.idLevel === selectedLevel;
-    return matchesSearch && matchesLevel;
+  // Fetch all modules
+  const { data: modules, isLoading } = useQuery({
+    queryKey: ["/api/modules"],
+    queryFn: async () => {
+      const response = await fetch("/api/modules");
+      if (!response.ok) throw new Error("Failed to fetch modules");
+      return response.json();
+    },
   });
 
-  const getUserProgress = (moduleId: string) => {
-    return mockProgress.find(p => p.moduleId === moduleId && p.userId === currentUser?.id);
+  // Filter modules based on level and search
+  const filteredModules = modules?.filter((module: any) => {
+    const levelMatch = selectedLevel === "all" || module.level === selectedLevel;
+    const searchMatch = !searchTerm || 
+      module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      module.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return levelMatch && searchMatch && module.isActive;
+  });
+
+  const handleModulePlay = (moduleId: number) => {
+    // Navigate to module details or lesson viewer
+    console.log('Playing module:', moduleId);
   };
 
-  const handleEditModule = (module: Module) => {
-    console.log('Edit module:', module);
-    // TODO: Open edit modal or navigate to edit page
+  const handleModuleEnroll = (moduleId: number) => {
+    // Handle enrollment
+    console.log('Enrolling in module:', moduleId);
   };
 
-  const handleDeleteModule = (moduleId: string) => {
-    console.log('Delete module:', moduleId);
-    // TODO: Show confirmation dialog and delete module
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}min` : `${mins}min`;
   };
 
-  const handleStartModule = (moduleId: string) => {
-    const module = mockModules.find(m => m.idModule === moduleId);
-    if (module) {
-      setSelectedModule(module);
-    }
-  };
-
-  const handleCreateModule = () => {
-    console.log('Create new module');
-    // TODO: Open create module modal or navigate to create page
-  };
-
-  const getPageTitle = () => {
-    switch (currentUser?.role) {
-      case 'admin':
-        return 'Gestion des Modules';
-      case 'trainer':
-        return 'Mes Modules de Formation';
-      case 'learner':
-        return 'Mes Cours';
-      default:
-        return 'Modules';
-    }
-  };
-
-  const getPageDescription = () => {
-    switch (currentUser?.role) {
-      case 'admin':
-        return 'Gérez tous les modules de formation de la plateforme';
-      case 'trainer':
-        return 'Créez et gérez vos modules de formation';
-      case 'learner':
-        return 'Découvrez et suivez vos cours en ligne';
-      default:
-        return 'Explorez les modules disponibles';
-    }
-  };
-
-  // If a module is selected, show module details
-  if (selectedModule) {
-    return (
-      <div className="p-8">
-        <ModuleDetails 
-          module={selectedModule} 
-          onBack={() => setSelectedModule(null)} 
-        />
-      </div>
-    );
-  }
+  // Transform modules for ModuleCard component
+  const transformedModules = filteredModules?.map((module: any) => ({
+    id: module.id,
+    title: module.title,
+    description: module.description,
+    level: module.level,
+    duration: formatDuration(module.duration),
+    lessons: module.totalLessons,
+    rating: module.rating || 5,
+    imageUrl: module.imageUrl,
+    progress: Math.floor(Math.random() * 100), // Mock progress
+    isCompleted: Math.random() > 0.8,
+    instructor: "Expert Trainer",
+    enrollmentDate: "Recently"
+  }));
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">{getPageTitle()}</h1>
-          <p className="text-muted-foreground text-lg">
-            {getPageDescription()}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Learning Modules
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Discover and enroll in our comprehensive training modules
           </p>
         </div>
-        {canCreateModule() && (
-          <Button 
-            className="bg-gradient-primary hover:bg-primary-hover"
-            onClick={handleCreateModule}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Créer un Module
-          </Button>
-        )}
+        <Button>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Module
+        </Button>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex gap-4 items-center">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            type="text"
-            placeholder="Rechercher des modules..."
-            className="pl-10 bg-muted/50 border-0"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 flex-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search modules..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="beginner">Beginner</SelectItem>
+              <SelectItem value="intermediate">Intermediate</SelectItem>
+              <SelectItem value="advanced">Advanced</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="crm">CRM Training</SelectItem>
+              <SelectItem value="sales">Sales Training</SelectItem>
+              <SelectItem value="marketing">Marketing</SelectItem>
+              <SelectItem value="technical">Technical</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        
-        <div className="flex gap-2">
-          <Button 
-            variant={selectedLevel === 'all' ? 'default' : 'outline'}
-            onClick={() => setSelectedLevel('all')}
-            className="text-sm"
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Tous les niveaux
-          </Button>
-          {mockLevels.map((level) => (
-            <Button
-              key={level.idLevel}
-              variant={selectedLevel === level.idLevel ? 'default' : 'outline'}
-              onClick={() => setSelectedLevel(level.idLevel)}
-              className="text-sm"
-            >
-              {level.name}
-            </Button>
-          ))}
-        </div>
+        <Button variant="outline" size="sm">
+          <Filter className="h-4 w-4 mr-2" />
+          More Filters
+        </Button>
       </div>
+
+      {/* Stats Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-blue-500" />
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Modules</p>
+                <p className="text-xl font-bold">{modules?.length || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-green-500" />
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Available</p>
+                <p className="text-xl font-bold">{filteredModules?.length || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-purple-500" />
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Enrolled</p>
+                <p className="text-xl font-bold">2</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-500" />
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Completed</p>
+                <p className="text-xl font-bold">1</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      )}
 
       {/* Modules Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredModules.map((module) => (
-          <ModuleCard
-            key={module.idModule}
-            module={module}
-            progress={getUserProgress(module.idModule)}
-            onEdit={handleEditModule}
-            onDelete={handleDeleteModule}
-            onStart={handleStartModule}
-          />
-        ))}
-      </div>
+      {!isLoading && transformedModules && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {transformedModules.map((module: any) => (
+            <ModuleCard
+              key={module.id}
+              module={module}
+              onPlay={handleModulePlay}
+              onEnroll={handleModuleEnroll}
+              showProgress={true}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Empty State */}
-      {filteredModules.length === 0 && (
-        <div className="text-center py-12">
-          <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/50" />
-          <h3 className="mt-4 text-lg font-medium text-foreground">
-            {searchTerm ? 'Aucun module trouvé' : 'Aucun module disponible'}
+      {!isLoading && (!transformedModules || transformedModules.length === 0) && (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <BookOpen className="h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            No modules found
           </h3>
-          <p className="mt-2 text-muted-foreground">
-            {searchTerm 
-              ? 'Essayez avec d\'autres mots-clés de recherche'
-              : canCreateModule() 
-                ? 'Commencez par créer votre premier module'
-                : 'Les modules seront bientôt disponibles'
-            }
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {searchTerm || selectedLevel !== "all" 
+              ? "Try adjusting your search or filters" 
+              : "Get started by creating your first learning module"}
           </p>
-          {canCreateModule() && !searchTerm && (
-            <Button 
-              className="mt-4 bg-gradient-primary hover:bg-primary-hover"
-              onClick={handleCreateModule}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Créer un Module
-            </Button>
-          )}
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Module
+          </Button>
         </div>
       )}
     </div>
