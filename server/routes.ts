@@ -97,6 +97,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Evaluation routes
+  app.get("/api/evaluations/:id", async (req, res) => {
+    try {
+      const evaluationId = parseInt(req.params.id);
+      const evaluation = await storage.getEvaluationById(evaluationId);
+      if (!evaluation) {
+        return res.status(404).json({ error: "Evaluation not found" });
+      }
+      res.json(evaluation);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch evaluation" });
+    }
+  });
+
+  app.get("/api/evaluations/:id/questions", async (req, res) => {
+    try {
+      const evaluationId = parseInt(req.params.id);
+      const questions = await storage.getQuestionsByEvaluation(evaluationId);
+      res.json(questions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch questions" });
+    }
+  });
+
+  app.post("/api/evaluations/:id/submit", async (req, res) => {
+    try {
+      const evaluationId = parseInt(req.params.id);
+      const { responses, timeTaken } = req.body;
+      
+      // Get evaluation and questions
+      const evaluation = await storage.getEvaluationById(evaluationId);
+      const questions = await storage.getQuestionsByEvaluation(evaluationId);
+      
+      if (!evaluation || !questions) {
+        return res.status(404).json({ error: "Evaluation or questions not found" });
+      }
+
+      // Calculate score
+      let score = 0;
+      let totalPoints = 0;
+      
+      for (const question of questions) {
+        totalPoints += question.points;
+        const userResponse = responses.find((r: any) => r.questionId === question.id);
+        
+        if (userResponse && userResponse.answer === question.correctAnswer) {
+          score += question.points;
+        }
+      }
+
+      const percentage = Math.round((score / totalPoints) * 100);
+      const isPassed = percentage >= evaluation.passingScore;
+
+      // Save result (mock implementation)
+      const result = {
+        evaluationId,
+        score,
+        totalPoints,
+        percentage,
+        isPassed,
+        timeTaken,
+        responses,
+      };
+
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to submit evaluation" });
+    }
+  });
+
   app.get("/api/users/:id", async (req, res) => {
     try {
       const user = await storage.getUser(parseInt(req.params.id));

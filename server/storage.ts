@@ -290,6 +290,111 @@ export class MemStorage implements IStorage {
 
     sampleLessons.forEach(lesson => this.lessons.set(lesson.id, lesson));
 
+    // Create sample evaluations
+    const sampleEvaluations: Evaluation[] = [
+      {
+        id: 1,
+        moduleId: 1,
+        lessonId: null,
+        title: "Quiz CRM Fundamentals",
+        description: "Test your knowledge of CRM basics",
+        evaluationType: "quiz",
+        totalQuestions: 3,
+        passingScore: 70,
+        timeLimit: 10,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        moduleId: 1,
+        lessonId: 1,
+        title: "Lesson 1 Knowledge Check",
+        description: "Quick assessment of Introduction to CRM concepts",
+        evaluationType: "quiz",
+        totalQuestions: 2,
+        passingScore: 80,
+        timeLimit: 5,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+
+    sampleEvaluations.forEach(evaluation => this.evaluations.set(evaluation.id, evaluation));
+
+    // Create sample questions
+    const sampleQuestions: Question[] = [
+      {
+        id: 1,
+        evaluationId: 1,
+        questionText: "What does CRM stand for?",
+        questionType: "multiple_choice",
+        options: ["Customer Relationship Management", "Customer Resource Management", "Client Relationship Model", "Customer Retention Method"],
+        correctAnswer: "Customer Relationship Management",
+        points: 1,
+        explanation: "CRM stands for Customer Relationship Management, a strategy for managing interactions with customers.",
+        order: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        evaluationId: 1,
+        questionText: "CRM systems help businesses improve customer satisfaction.",
+        questionType: "true_false",
+        options: ["True", "False"],
+        correctAnswer: "True",
+        points: 1,
+        explanation: "CRM systems are designed to help businesses better understand and serve their customers.",
+        order: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 3,
+        evaluationId: 1,
+        questionText: "List three main benefits of using a CRM system.",
+        questionType: "open_ended",
+        options: [],
+        correctAnswer: "Better customer relationships, improved sales tracking, enhanced customer service",
+        points: 2,
+        explanation: "CRM systems provide numerous benefits including better customer relationships, improved sales tracking, and enhanced customer service.",
+        order: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 4,
+        evaluationId: 2,
+        questionText: "Which feature helps track customer interactions?",
+        questionType: "multiple_choice",
+        options: ["Contact History", "Sales Reports", "Marketing Analytics", "All of the above"],
+        correctAnswer: "All of the above",
+        points: 1,
+        explanation: "All these features help track different aspects of customer interactions.",
+        order: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 5,
+        evaluationId: 2,
+        questionText: "CRM systems are only useful for sales teams.",
+        questionType: "true_false",
+        options: ["True", "False"],
+        correctAnswer: "False",
+        points: 1,
+        explanation: "CRM systems benefit sales, marketing, and customer service teams alike.",
+        order: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+
+    sampleQuestions.forEach(question => this.questions.set(question.id, question));
+
     this.currentId = 100; // Start IDs from 100 to avoid conflicts
   }
 
@@ -504,6 +609,10 @@ export class MemStorage implements IStorage {
 
   // Evaluation methods
   async getEvaluation(id: number): Promise<Evaluation | undefined> {
+    return this.evaluations.get(id);
+  }
+
+  async getEvaluationById(id: number): Promise<Evaluation | undefined> {
     return this.evaluations.get(id);
   }
 

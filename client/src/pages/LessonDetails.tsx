@@ -206,7 +206,12 @@ export default function LessonDetails() {
                       <p className="text-gray-600 dark:text-gray-400 mb-4">
                         Test your understanding of the lesson content
                       </p>
-                      <Button>Start Quiz</Button>
+                      <Button 
+                        onClick={() => navigate(`/quiz/quiz/2`)}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        Start Quiz
+                      </Button>
                     </div>
                   </TabsContent>
                 </Tabs>
