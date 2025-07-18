@@ -1,4 +1,17 @@
-import { BookOpen, Calendar, MessageSquare, User, Search, FileText, Ticket } from "lucide-react";
+import { 
+  BookOpen, 
+  Calendar, 
+  MessageSquare, 
+  User, 
+  Search, 
+  FileText, 
+  Ticket, 
+  PlusCircle, 
+  ClipboardCheck, 
+  TrendingUp, 
+  Users, 
+  GraduationCap 
+} from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -12,10 +25,16 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
-  { title: "Discussions", url: "/discussions", icon: MessageSquare },
+  { title: "Dashboard", url: "/", icon: BookOpen },
   { title: "Courses", url: "/courses", icon: BookOpen },
-  { title: "Calendar", url: "/calendar", icon: Calendar },
+  { title: "Create Module", url: "/create-module", icon: PlusCircle },
+  { title: "Create Lesson", url: "/create-lesson", icon: PlusCircle },
+  { title: "Evaluations", url: "/evaluations", icon: ClipboardCheck },
+  { title: "Progress", url: "/progress", icon: TrendingUp },
+  { title: "Users", url: "/users", icon: Users },
   { title: "Students", url: "/students", icon: User },
+  { title: "Calendar", url: "/calendar", icon: Calendar },
+  { title: "Discussions", url: "/discussions", icon: MessageSquare },
   { title: "Notes", url: "/notes", icon: FileText },
   { title: "Support", url: "/support", icon: Ticket },
 ];

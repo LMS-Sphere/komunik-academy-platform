@@ -14,6 +14,12 @@ import Notes from "./pages/Notes";
 import Calendar from "./pages/Calendar";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
+import CreateLesson from "./pages/CreateLesson";
+import CreateModule from "./pages/CreateModule";
+import Evaluations from "./pages/Evaluations";
+import ProgressPage from "./pages/Progress";
+import Quiz from "./pages/Quiz";
+import Users from "./pages/Users";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +43,12 @@ const App = () => (
                   <Route path="/notes" component={Notes} />
                   <Route path="/calendar" component={Calendar} />
                   <Route path="/support" component={Support} />
+                  <Route path="/create-lesson" component={CreateLesson} />
+                  <Route path="/create-module" component={CreateModule} />
+                  <Route path="/evaluations" component={Evaluations} />
+                  <Route path="/progress" component={ProgressPage} />
+                  <Route path="/quiz/:type/:id" component={Quiz} />
+                  <Route path="/users" component={Users} />
                   <Route component={NotFound} />
                 </Switch>
               </main>
