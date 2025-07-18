@@ -1,11 +1,12 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Router, Route, Switch } from "wouter";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
+import { queryClient } from "@/lib/queryClient";
 import Index from "./pages/Index";
 import Courses from "./pages/Courses";
 import Students from "./pages/Students";
@@ -20,8 +21,6 @@ import Evaluations from "./pages/Evaluations";
 import ProgressPage from "./pages/Progress";
 import Quiz from "./pages/Quiz";
 import Users from "./pages/Users";
-
-const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
