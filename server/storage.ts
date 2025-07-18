@@ -1,7 +1,7 @@
 import { 
-  users, modules, lessons, userProgress, questions, evaluations, userResponses, userEvaluationResults, activityLog,
-  type User, type Module, type Lesson, type UserProgress, type Question, type Evaluation, type UserResponse, type UserEvaluationResult, type ActivityLog,
-  type InsertUser, type InsertModule, type InsertLesson, type InsertUserProgress, type InsertQuestion, type InsertEvaluation, type InsertUserResponse, type InsertUserEvaluationResult, type InsertActivityLog
+  users, modules, lessons, userProgress, questions, evaluations, responses, performance,
+  type User, type Module, type Lesson, type UserProgress, type Question, type Evaluation, type Response, type Performance,
+  type InsertUser, type InsertModule, type InsertLesson, type InsertUserProgress, type InsertQuestion, type InsertEvaluation, type InsertResponse, type InsertPerformance
 } from "@shared/schema";
 
 export interface IStorage {
@@ -46,6 +46,7 @@ export interface IStorage {
 
   // Evaluations
   getEvaluation(id: number): Promise<Evaluation | undefined>;
+  getEvaluationById(id: number): Promise<Evaluation | undefined>;
   getEvaluationsByModule(moduleId: number): Promise<Evaluation[]>;
   getEvaluationsByLesson(lessonId: number): Promise<Evaluation[]>;
   createEvaluation(evaluation: InsertEvaluation): Promise<Evaluation>;
@@ -53,18 +54,13 @@ export interface IStorage {
   deleteEvaluation(id: number): Promise<boolean>;
 
   // User Responses
-  getUserResponse(id: number): Promise<UserResponse | undefined>;
-  getUserResponsesByEvaluation(userId: number, evaluationId: number): Promise<UserResponse[]>;
-  createUserResponse(response: InsertUserResponse): Promise<UserResponse>;
+  getUserResponse(id: number): Promise<Response | undefined>;
+  getUserResponsesByEvaluation(userId: number, evaluationId: number): Promise<Response[]>;
+  createUserResponse(response: InsertResponse): Promise<Response>;
 
-  // User Evaluation Results
-  getUserEvaluationResult(id: number): Promise<UserEvaluationResult | undefined>;
-  getUserEvaluationResults(userId: number): Promise<UserEvaluationResult[]>;
-  createUserEvaluationResult(result: InsertUserEvaluationResult): Promise<UserEvaluationResult>;
-
-  // Activity Log
-  getActivityLog(userId: number): Promise<ActivityLog[]>;
-  createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
+  // Performance
+  getPerformance(userId: number): Promise<Performance[]>;
+  createPerformance(performance: InsertPerformance): Promise<Performance>;
 }
 
 export class MemStorage implements IStorage {
@@ -74,9 +70,8 @@ export class MemStorage implements IStorage {
   private userProgress: Map<number, UserProgress>;
   private questions: Map<number, Question>;
   private evaluations: Map<number, Evaluation>;
-  private userResponses: Map<number, UserResponse>;
-  private userEvaluationResults: Map<number, UserEvaluationResult>;
-  private activityLog: Map<number, ActivityLog>;
+  private responses: Map<number, Response>;
+  private performance: Map<number, Performance>;
   private currentId: number;
 
   constructor() {
@@ -86,9 +81,8 @@ export class MemStorage implements IStorage {
     this.userProgress = new Map();
     this.questions = new Map();
     this.evaluations = new Map();
-    this.userResponses = new Map();
-    this.userEvaluationResults = new Map();
-    this.activityLog = new Map();
+    this.responses = new Map();
+    this.performance = new Map();
     this.currentId = 1;
     
     // Initialize with some sample data
@@ -918,66 +912,44 @@ export class MemStorage implements IStorage {
   }
 
   // User Response methods
-  async getUserResponse(id: number): Promise<UserResponse | undefined> {
-    return this.userResponses.get(id);
+  async getUserResponse(id: number): Promise<Response | undefined> {
+    return this.responses.get(id);
   }
 
-  async getUserResponsesByEvaluation(userId: number, evaluationId: number): Promise<UserResponse[]> {
-    return Array.from(this.userResponses.values()).filter(r => 
-      r.userId === userId && 
-      this.questions.get(r.questionId!)?.evaluationId === evaluationId
+  async getUserResponsesByEvaluation(userId: number, evaluationId: number): Promise<Response[]> {
+    return Array.from(this.responses.values()).filter(r => 
+      r.userId === userId && r.evaluationId === evaluationId
     );
   }
 
-  async createUserResponse(insertResponse: InsertUserResponse): Promise<UserResponse> {
+  async createUserResponse(insertResponse: InsertResponse): Promise<Response> {
     const id = this.currentId++;
-    const response: UserResponse = { 
+    const response: Response = { 
       ...insertResponse, 
       id, 
-      createdAt: new Date() 
+      answeredAt: new Date() 
     };
-    this.userResponses.set(id, response);
+    this.responses.set(id, response);
     return response;
   }
 
-  // User Evaluation Result methods
-  async getUserEvaluationResult(id: number): Promise<UserEvaluationResult | undefined> {
-    return this.userEvaluationResults.get(id);
+  // Performance methods
+  async getPerformance(userId: number): Promise<Performance[]> {
+    return Array.from(this.performance.values()).filter(p => p.userId === userId);
   }
 
-  async getUserEvaluationResults(userId: number): Promise<UserEvaluationResult[]> {
-    return Array.from(this.userEvaluationResults.values()).filter(r => r.userId === userId);
-  }
-
-  async createUserEvaluationResult(insertResult: InsertUserEvaluationResult): Promise<UserEvaluationResult> {
+  async createPerformance(insertPerformance: InsertPerformance): Promise<Performance> {
     const id = this.currentId++;
-    const result: UserEvaluationResult = { 
-      ...insertResult, 
-      id, 
-      startedAt: new Date(), 
-      completedAt: new Date() 
-    };
-    this.userEvaluationResults.set(id, result);
-    return result;
-  }
-
-  // Activity Log methods
-  async getActivityLog(userId: number): Promise<ActivityLog[]> {
-    return Array.from(this.activityLog.values())
-      .filter(log => log.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  }
-
-  async createActivityLog(insertLog: InsertActivityLog): Promise<ActivityLog> {
-    const id = this.currentId++;
-    const log: ActivityLog = { 
-      ...insertLog, 
+    const performance: Performance = { 
+      ...insertPerformance, 
       id, 
       createdAt: new Date() 
     };
-    this.activityLog.set(id, log);
-    return log;
+    this.performance.set(id, performance);
+    return performance;
   }
+
+
 }
 
 export const storage = new MemStorage();

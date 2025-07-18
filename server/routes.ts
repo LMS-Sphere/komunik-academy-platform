@@ -13,8 +13,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = {
         totalLearners: users.filter(u => u.role === 'learner').length,
         activeModules: modules.filter(m => m.isActive).length,
-        inProgress: allProgress.filter(p => p.completionPercentage > 0 && p.completionPercentage < 100).length,
-        completed: allProgress.filter(p => p.completionPercentage === 100).length,
+        inProgress: allProgress.filter(p => (p.completionPercentage ?? 0) > 0 && (p.completionPercentage ?? 0) < 100).length,
+        completed: allProgress.filter(p => (p.completionPercentage ?? 0) === 100).length,
       };
       
       res.json(stats);
@@ -173,16 +173,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let totalPoints = 0;
       
       for (const question of questions) {
-        totalPoints += question.points;
+        totalPoints += question.points ?? 1;
         const userResponse = responses.find((r: any) => r.questionId === question.id);
         
         if (userResponse && userResponse.answer === question.correctAnswer) {
-          score += question.points;
+          score += question.points ?? 1;
         }
       }
 
       const percentage = Math.round((score / totalPoints) * 100);
-      const isPassed = percentage >= evaluation.passingScore;
+      const isPassed = percentage >= (evaluation.passingScore ?? 70);
 
       // Save result (mock implementation)
       const result = {
@@ -438,7 +438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const moduleId = req.query.moduleId ? parseInt(req.query.moduleId as string) : undefined;
       const lessonId = req.query.lessonId ? parseInt(req.query.lessonId as string) : undefined;
       
-      let evaluations;
+      let evaluations: any[];
       if (moduleId) {
         evaluations = await storage.getEvaluationsByModule(moduleId);
       } else if (lessonId) {
@@ -481,7 +481,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const evaluationId = req.query.evaluationId ? parseInt(req.query.evaluationId as string) : undefined;
       const lessonId = req.query.lessonId ? parseInt(req.query.lessonId as string) : undefined;
       
-      let questions;
+      let questions: any[];
       if (evaluationId) {
         questions = await storage.getQuestionsByEvaluation(evaluationId);
       } else if (lessonId) {

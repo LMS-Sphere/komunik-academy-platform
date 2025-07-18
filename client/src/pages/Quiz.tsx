@@ -30,7 +30,7 @@ interface Evaluation {
   lessonId?: number;
   title: string;
   description: string;
-  evaluationType: "quiz" | "test";
+  evaluationType: "lesson_quiz" | "module_final_quiz";
   totalQuestions: number;
   passingScore: number;
   timeLimit?: number;
@@ -368,7 +368,7 @@ export default function Quiz() {
                   value={quizState.answers[currentQuestion.id] || ""}
                   onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
                 >
-                  {currentQuestion.options.map((option, index) => (
+                  {currentQuestion.options.map((option: string, index: number) => (
                     <div key={index} className="flex items-center space-x-2">
                       <RadioGroupItem value={option} id={`option-${index}`} />
                       <Label htmlFor={`option-${index}`} className="cursor-pointer">
@@ -418,7 +418,7 @@ export default function Quiz() {
           </Button>
 
           <div className="flex gap-2">
-            {questions.map((_, index) => (
+            {questions.map((_: any, index: number) => (
               <button
                 key={index}
                 onClick={() => setQuizState(prev => ({ ...prev, currentQuestion: index }))}

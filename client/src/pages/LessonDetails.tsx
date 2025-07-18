@@ -10,7 +10,7 @@ import { ArrowLeft, PlayCircle, CheckCircle, Clock, BookOpen, Users, Star, Downl
 
 export default function LessonDetails() {
   const params = useParams();
-  const [, setLocation] = useLocation();
+  const [, navigate] = useLocation();
   const lessonId = params.id;
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentProgress, setCurrentProgress] = useState(0);

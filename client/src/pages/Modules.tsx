@@ -93,7 +93,7 @@ export default function Modules() {
 
   // If a module is selected, show its details
   if (selectedModuleId) {
-    const selectedModule = transformedModules?.find(m => m.id === selectedModuleId);
+    const selectedModule = transformedModules?.find((m: any) => m.id === selectedModuleId);
     if (selectedModule) {
       return (
         <ModuleDetails 
