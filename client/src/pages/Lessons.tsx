@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 
 export default function Lessons() {
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedModule, setSelectedModule] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
@@ -242,7 +244,7 @@ export default function Lessons() {
                       <Button 
                         size="sm" 
                         className="flex-1"
-                        onClick={() => console.log('Start lesson:', lesson.id)}
+                        onClick={() => setLocation(`/lesson/${lesson.id}`)}
                       >
                         <PlayCircle className="h-4 w-4 mr-2" />
                         {lesson.status === 'completed' ? 'Review' : 'Start'}

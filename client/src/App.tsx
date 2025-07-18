@@ -21,6 +21,9 @@ import Evaluations from "./pages/Evaluations";
 import ProgressPage from "./pages/Progress";
 import Quiz from "./pages/Quiz";
 import Users from "./pages/Users";
+import Lessons from "./pages/Lessons";
+import LessonDetails from "./pages/LessonDetails";
+import Modules from "./pages/Modules";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -29,7 +32,7 @@ const App = () => (
       <Sonner />
       <Router>
         <SidebarProvider>
-          <div className="min-h-screen flex w-full">
+          <div className="min-h-screen flex w-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800">
             <AppSidebar />
             <div className="flex-1 flex flex-col">
               <Header />
@@ -37,6 +40,9 @@ const App = () => (
                 <Switch>
                   <Route path="/" component={Index} />
                   <Route path="/courses" component={Courses} />
+                  <Route path="/modules" component={Modules} />
+                  <Route path="/lessons" component={Lessons} />
+                  <Route path="/lesson/:id" component={LessonDetails} />
                   <Route path="/students" component={Students} />
                   <Route path="/discussions" component={Discussions} />
                   <Route path="/notes" component={Notes} />

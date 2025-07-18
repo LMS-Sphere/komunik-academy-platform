@@ -203,7 +203,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      res.json(lessons);
+      // Add mock status and other display properties
+      const lessonsWithStatus = lessons.map((lesson: any) => ({
+        ...lesson,
+        status: Math.random() > 0.7 ? 'completed' : Math.random() > 0.4 ? 'in-progress' : 'not-started',
+        type: lesson.lessonType,
+        enrolledCount: Math.floor(Math.random() * 500) + 100,
+        rating: Math.floor(Math.random() * 2) + 4 // 4 or 5 stars
+      }));
+      
+      res.json(lessonsWithStatus);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch lessons" });
     }
@@ -251,6 +260,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Lesson deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete lesson" });
+    }
+  });
+
+  // Lesson comments route
+  app.get("/api/lessons/:id/comments", async (req, res) => {
+    try {
+      // Mock comments for now - in a real app, this would come from a comments table
+      const comments = [
+        {
+          id: 1,
+          user: "Marie Dubois",
+          message: "Great explanation of CRM fundamentals! Very clear and easy to understand.",
+          timestamp: "2 hours ago"
+        },
+        {
+          id: 2,
+          user: "Jean Dupont",
+          message: "This helped me understand the customer lifecycle better. Thanks!",
+          timestamp: "5 hours ago"
+        },
+        {
+          id: 3,
+          user: "Sophie Martin",
+          message: "Looking forward to the next lesson in this series.",
+          timestamp: "1 day ago"
+        }
+      ];
+      res.json(comments);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch lesson comments" });
     }
   });
 

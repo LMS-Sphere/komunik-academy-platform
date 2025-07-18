@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useParams, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,11 +8,10 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, PlayCircle, CheckCircle, Clock, BookOpen, Users, Star, Download, Share2 } from "lucide-react";
 
-interface LessonDetailsProps {
-  lessonId?: string;
-}
-
-export default function LessonDetails({ lessonId = "1" }: LessonDetailsProps) {
+export default function LessonDetails() {
+  const params = useParams();
+  const [, setLocation] = useLocation();
+  const lessonId = params.id;
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentProgress, setCurrentProgress] = useState(0);
 
@@ -55,9 +55,9 @@ export default function LessonDetails({ lessonId = "1" }: LessonDetailsProps) {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" className="flex items-center gap-2">
+          <Button variant="ghost" className="flex items-center gap-2" onClick={() => setLocation('/lessons')}>
             <ArrowLeft className="h-4 w-4" />
-            Back to Module
+            Back to Lessons
           </Button>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm">
