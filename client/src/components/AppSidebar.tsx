@@ -28,7 +28,6 @@ const navigationItems = [
   { title: "Dashboard", url: "/", icon: BookOpen },
   { title: "Modules", url: "/modules", icon: BookOpen },
   { title: "Lessons", url: "/lessons", icon: GraduationCap },
-  { title: "Courses", url: "/courses", icon: BookOpen },
   { title: "Create Module", url: "/create-module", icon: PlusCircle },
   { title: "Create Lesson", url: "/create-lesson", icon: PlusCircle },
   { title: "Evaluations", url: "/evaluations", icon: ClipboardCheck },

@@ -39,7 +39,6 @@ const App = () => (
               <main className="flex-1 overflow-auto">
                 <Switch>
                   <Route path="/" component={Index} />
-                  <Route path="/courses" component={Courses} />
                   <Route path="/modules" component={Modules} />
                   <Route path="/lessons" component={Lessons} />
                   <Route path="/lesson/:id" component={LessonDetails} />
