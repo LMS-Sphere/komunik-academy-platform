@@ -1,5 +1,5 @@
 import { BookOpen, Calendar, MessageSquare, User, Search, FileText, Ticket } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "wouter";
 import {
   Sidebar,
   SidebarContent,
@@ -22,13 +22,13 @@ const navigationItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
+  const [location] = useLocation();
+  const currentPath = location;
   
   const isCollapsed = state === "collapsed";
 
   const isActive = (path: string) => currentPath === path || (path === "/courses" && currentPath === "/");
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
+  const getNavCls = (isActive: boolean) =>
     isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground";
 
   return (
@@ -72,10 +72,10 @@ export function AppSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="mb-1">
-                    <NavLink to={item.url} className={getNavCls}>
+                    <Link href={item.url} className={getNavCls(isActive(item.url))}>
                       <item.icon className="h-5 w-5" />
                       {!isCollapsed && <span className="font-medium">{item.title}</span>}
-                    </NavLink>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
